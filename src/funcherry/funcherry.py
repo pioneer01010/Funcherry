@@ -1,4 +1,3 @@
 class Funcherry:
-    def __init__(self, signature: str):
+    def __init__(self, func, ):
         self.signature = signature
-
