@@ -11,3 +11,7 @@ class BaseError(Exception):
 
 class RepositoryError(BaseError):
     message = "%(cause)s"
+
+
+class FunctionParseError(BaseError):
+    message = "%(cause)s"
