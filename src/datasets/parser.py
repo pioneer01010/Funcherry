@@ -1,7 +1,9 @@
 import ast
 import os
+import re
 
 from common.error import FunctionParseError
+from pathlib import Path
 
 class FunctionParser:
 
@@ -12,23 +14,42 @@ class FunctionParser:
 
         self.file_path = file_path
 
-    def get_function_code_blocks(self):
-        function_code_blocks = {}
-
+    def parse_function_data(self):
+        functions = {}
         with open(self.file_path, "r") as file:
             tree = ast.parse(file.read(), filename=self.file_path)
 
-            # Define a visitor to visit FunctionDef nodes and extract function code blocks
-            class FunctionCodeBlockVisitor(ast.NodeVisitor):
+            # Define a visitor to visit FunctionDef nodes
+            class FunctionNodeVisitor(ast.NodeVisitor):
                 def visit_FunctionDef(self, node: ast.FunctionDef):
                     file.seek(0)
                     code_lines = file.readlines()
-                    code_block = "".join(code_lines[node.lineno - 1: node.end_lineno])
-                    function_code_blocks[node.name] = code_block
+                    start_line = node.lineno - 1
+                    end_line = node.end_lineno
+                    code_block = "".join(code_lines[start_line: end_line])
+                    return_annotation = ast.get_source_segment(code_lines[start_line: end_line]) if node.returns else ""
+                    signature = {
+                        "name": node.name,
+                        "args": [arg.arg for arg in node.args.args],
+                        "varargs": node.args.vararg and node.args.vararg.arg,
+                        "kwonlyargs": [kwonly.arg for kwonly in node.args.kwonlyargs],
+                        "kwarg": node.args.kwarg and node.args.kwarg.arg,
+                        "return_annotation": return_annotation.strip()
+                    }
+
+                    # sig = "def " + node.name + "("
+                    #
+                    # for s in [arg.arg for arg in node.args.args]:
+                    #     sig += s
+                    #     sig += ","
+
+
+                    functions[file.name + node.name] = node.name, signature, start_line, end_line, code_block
                     self.generic_visit(node)
 
             # Traverse the AST and extract function code blocks
-            visitor = FunctionCodeBlockVisitor()
+            visitor = FunctionNodeVisitor()
             visitor.visit(tree)
 
-        return function_code_blocks
+        return functions
+

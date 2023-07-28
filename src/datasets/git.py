@@ -1,6 +1,7 @@
 import os
 import logging
 import subprocess
+import shutil
 
 from common.error import RepositoryError
 
@@ -53,7 +54,10 @@ class GitRepository:
 
     def checkout(self, rev):
         cmd = ['git', 'checkout', rev]
-        outs = self._exec(cmd, self.path)
+        self._exec(cmd, self.path)
+        self.revision = rev
+
+        return rev
 
     @staticmethod
     def _exec(cmd, cwd=None):
