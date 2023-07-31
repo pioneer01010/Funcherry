@@ -11,9 +11,7 @@ def main():
     from pathlib import Path
     files = [f for f in Path(path).rglob('*.py') if not f.name.startswith("__init__")]
     for file in files:
-
-        func = FunctionParser(file).parse_function_data()
-        print(file, func)
+        func = FunctionParser.from_file(file)
 
 
 if __name__ == '__main__':

@@ -1,23 +1,26 @@
 import ast
 import os
-import re
 
 from common.error import FunctionParseError
-from pathlib import Path
+
 
 class FunctionParser:
+    class Function:
+        def __init__(self, file, start, end, signature, block):
+            self.file = file
+            self.start = start
+            self.end = end
+            self.signature = signature
+            self.block = block
 
-    def __init__(self, file_path):
-        if not os.path.exists(file_path):
-            cause = "No file exists '%s'", file_path
+    @classmethod
+    def from_file(cls, filepath):
+        if not os.path.exists(filepath):
+            cause = "No file exists '%s'", filepath
             raise FunctionParseError(cause=cause)
 
-        self.file_path = file_path
-
-    def parse_function_data(self):
-        functions = {}
-        with open(self.file_path, "r") as file:
-            tree = ast.parse(file.read(), filename=self.file_path)
+        with open(filepath, "r") as file:
+            tree = ast.parse(file.read(), filename=filepath)
 
             # Define a visitor to visit FunctionDef nodes
             class FunctionNodeVisitor(ast.NodeVisitor):
@@ -36,20 +39,33 @@ class FunctionParser:
                         "kwarg": node.args.kwarg and node.args.kwarg.arg,
                         "return_annotation": return_annotation.strip()
                     }
-
-                    # sig = "def " + node.name + "("
-                    #
-                    # for s in [arg.arg for arg in node.args.args]:
-                    #     sig += s
-                    #     sig += ","
-
-
-                    functions[file.name + node.name] = node.name, signature, start_line, end_line, code_block
                     self.generic_visit(node)
+                    return cls.Function(file.name, start_line, end_line, cls._parse_function_signature(signature),
+                                        code_block)
 
-            # Traverse the AST and extract function code blocks
             visitor = FunctionNodeVisitor()
             visitor.visit(tree)
 
-        return functions
+    @classmethod
+    def _parse_function_signature(cls, signature):
+        signatures = signature["args"]
+        if signature["varargs"] is not None:
+            signatures += signature["varargs"]
+        signatures += signature["kwonlyargs"]
+        if signature["kwarg"] is not None:
+            signatures.append(signature["kwarg"])
+
+        sig_str = "def " + signature["name"] + "("
+        for i in range(len(signatures)):
+            sig_str += signatures[i]
+            if i == len(signatures)-1:
+                break
+            sig_str += ','
+        sig_str += ")"
+
+        return sig_str
+
+
+
+
 
