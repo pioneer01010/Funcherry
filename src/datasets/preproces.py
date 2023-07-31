@@ -9,6 +9,7 @@ GlobalLogger.initialize(log_level=logging.DEBUG)
 def main():
     path = "C:\\/Users\\/yc_pine.hong\\/Downloads\\/Funcherry"
     repo = GitRepository.clone("https://github.com/pioneer01010/Funcherry.git", path)
+
     for rev in repo.rev_list():
         repo.checkout(rev)
 
