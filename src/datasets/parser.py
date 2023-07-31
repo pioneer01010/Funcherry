@@ -20,11 +20,12 @@ class FunctionParser:
             cause = "No file exists '%s'", filepath
             raise FunctionParseError(cause=cause)
 
-        with open(filepath, "r") as file:
+        with open(filepath, "r", encoding='utf-8') as file:
             tree = ast.parse(file.read(), filename=filepath)
 
             # Define a visitor to visit FunctionDef nodes
             class FunctionNodeVisitor(ast.NodeVisitor):
+
                 def visit_FunctionDef(self, node: ast.FunctionDef):
                     file.seek(0)
                     code_lines = file.readlines()
@@ -32,6 +33,7 @@ class FunctionParser:
                     end_line = node.end_lineno
                     code_block = "".join(code_lines[start_line: end_line])
                     return_annotation = ast.get_source_segment(code_lines[start_line: end_line]) if node.returns else ""
+
                     signature = {
                         "name": node.name,
                         "args": [arg.arg for arg in node.args.args],
