@@ -1,14 +1,9 @@
 import os
 import logging
 import subprocess
-import shutil
 
 from common.error import RepositoryError
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
-                    datefmt='%m/%d/%Y %H:%M:%S',
-                    level=logging.DEBUG)
 
 class GitRepository:
     def __init__(self, uri, path):
@@ -28,11 +23,11 @@ class GitRepository:
         if not ssl_verify:
             cmd += ['-c', 'http.sslVerify=false']
         if os.path.exists(os.path.join(path, '.git')):
-            logger.warning("%s repository already exists in %s", uri, path)
+            logging.warning("%s repository already exists in %s", uri, path)
             return cls(uri, path)
 
         cls._exec(cmd)
-        logger.debug("Git %s repository cloned into %s", uri, path)
+        logging.debug("Git %s repository cloned into %s", uri, path)
 
         return cls(uri, path)
 
@@ -61,7 +56,7 @@ class GitRepository:
 
     @staticmethod
     def _exec(cmd, cwd=None):
-        logger.debug("%s > %s", cwd, cmd)
+        logging.debug("%s > %s", cwd, cmd)
 
         try:
             proc = subprocess.Popen(cmd,
@@ -73,7 +68,7 @@ class GitRepository:
             raise RepositoryError(cause=str(e))
 
         if proc.returncode != 0:
-            logger.error("returncode=%d, errs=%s", proc.returncode, errs)
+            logging.error("returncode=%d, errs=%s", proc.returncode, errs)
 
         return outs
 

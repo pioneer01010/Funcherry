@@ -2,7 +2,7 @@ import ast
 import os
 
 from common.error import FunctionParseError
-
+import logging
 
 class FunctionParser:
     class Function:
@@ -12,6 +12,7 @@ class FunctionParser:
             self.end = end
             self.signature = signature
             self.block = block
+            logging.info(self.file + " | " + str(self.start) + " | " + str(self.end) + " | " + self.signature)
 
     @classmethod
     def from_file(cls, filepath):

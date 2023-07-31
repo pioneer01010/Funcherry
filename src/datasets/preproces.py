@@ -1,6 +1,10 @@
+import logging
+
 from datasets.git import GitRepository
 from datasets.parser import FunctionParser
+from common.log import GlobalLogger
 
+GlobalLogger.initialize(log_level=logging.DEBUG)
 
 def main():
     path = "C:\\/Users\\/yc_pine.hong\\/Downloads\\/Funcherry"
