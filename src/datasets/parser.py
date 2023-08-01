@@ -5,74 +5,72 @@ from common.error import FunctionParseError
 import logging
 
 
+class FunctionNodeVisitor(ast.NodeVisitor):
+    def __init__(self):
+        self.functions = []
+        self.classes = []
+
+    def visit_ClassDef(self, node: ast.ClassDef):
+        self.classes.append(node)
+        self.generic_visit(node)
+
+    def visit_FunctionDef(self, node: ast.FunctionDef):
+        self.functions.append(node)
+        self.generic_visit(node)
+
+
 class FunctionParser:
-    # To avoid instantiate Function object independently.
-    class Function:
-        def __init__(self, file, clazz, start, end, signature, block):
-            self.file = file
-            self.clazz = clazz
-            self.start = start
-            self.end = end
-            self.signature = signature
-            self.block = block
-            logging.info(self.file + " | " + self.clazz + " | " + str(self.start) + " | " + str(
-                self.end) + " | " + self.signature)
 
     @classmethod
     def parse_functions_from_file(cls, filepath):
-        functions = []
-
         if not os.path.exists(filepath):
             cause = "No file exists '%s'", filepath
             raise FunctionParseError(cause=cause)
 
         with open(filepath, "r", encoding='utf-8') as file:
-            tree = ast.parse(file.read(), filename=filepath)
+            tree = ast.parse(file.read())
+            file.seek(0)  # fp init
+            source_code = file.readlines()
 
-            # Define a visitor to visit FunctionDef nodes
-            class FunctionNodeVisitor(ast.NodeVisitor):
-                def __init__(self):
-                    self.classes = []
+        visitor = FunctionNodeVisitor()
+        visitor.visit(tree)
 
-                def visit_ClassDef(self, node: ast.ClassDef):
-                    self.classes.append(node)
-                    self.generic_visit(node)
-
-                    # For Inner class
-                    for inner_node in node.body:
-                        if isinstance(inner_node, ast.ClassDef):
-                            self.visit_ClassDef(inner_node)
-
-                def visit_FunctionDef(self, node: ast.FunctionDef):
-                    file.seek(0)  # fp init
-                    code_lines = file.readlines()
-                    start_line = node.lineno - 1
-                    end_line = node.end_lineno
-                    code_block = "".join(code_lines[start_line: end_line])
-                    return_annotation = ast.get_source_segment(code_lines[start_line: end_line]) if node.returns else ""
-                    signature = {
-                        "name": node.name,
-                        "args": [arg.arg for arg in node.args.args],
-                        "varargs": node.args.vararg and node.args.vararg.arg,
-                        "kwonlyargs": [kwonly.arg for kwonly in node.args.kwonlyargs],
-                        "kwarg": node.args.kwarg and node.args.kwarg.arg,
-                        "return_annotation": return_annotation.strip()
-                    }
-
-                    self.generic_visit(node)
-                    functions.append(cls.Function(file.name,
-                                                  cls._parse_class_name(node, self.classes),
-                                                  start_line, end_line,
-                                                  cls._parse_function_signature(signature),
-                                                  code_block))
-
-            visitor = FunctionNodeVisitor()
-            visitor.visit(tree)
+        functions = cls.parse_functions(visitor.functions, visitor.classes, file.name, source_code)
 
         return functions
 
     @classmethod
-    def _parse_class_name(cls, func_node: ast.FunctionDef, classes):
+    def parse_functions(cls, fnodes, cnodes, filename, src):
+        functions = []
+        for node in fnodes:
+            start = node.lineno - 1
+            end = node.end_lineno
+            code_block = "".join(src[start:end])
+            return_annotation = ast.get_source_segment(src[start:end]) if node.returns else ""
+            signature = {
+                "name": node.name,
+                "args": [arg.arg for arg in node.args.args],
+                "varargs": node.args.vararg and node.args.vararg.arg,
+                "kwonlyargs": [kwonly.arg for kwonly in node.args.kwonlyargs],
+                "kwarg": node.args.kwarg and node.args.kwarg.arg,
+                "return_annotation": return_annotation.strip()
+            }
+            clazz = cls._find_class_name(node, cnodes)
+            sigstr = cls._to_str_signature(signature)
+
+            functions.append({
+                "file": filename,
+                "class": clazz,
+                "signature": sigstr,
+                "start": start,
+                "end": end,
+                "block": code_block
+            })
+
+        return functions
+
+    @classmethod
+    def _find_class_name(cls, func_node: ast.FunctionDef, classes):
         for clz in classes:
             if func_node in clz.body:
                 return clz.name
@@ -80,10 +78,10 @@ class FunctionParser:
         return "None"
 
     @classmethod
-    def _parse_function_signature(cls, signature):
+    def _to_str_signature(cls, signature):
         signatures = signature["args"]
         if signature["varargs"] is not None:
-            signatures += signature["varargs"]
+            signatures.append(signature["varargs"])
         signatures += signature["kwonlyargs"]
         if signature["kwarg"] is not None:
             signatures.append(signature["kwarg"])
@@ -97,3 +95,4 @@ class FunctionParser:
         sig_str += ")"
 
         return sig_str
+
