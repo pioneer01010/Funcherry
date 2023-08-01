@@ -15,10 +15,13 @@ class FunctionParser:
             self.end = end
             self.signature = signature
             self.block = block
-            logging.info(self.file + " | " + self.clazz + " | " + str(self.start) + " | " + str(self.end) + " | " + self.signature)
+            logging.info(self.file + " | " + self.clazz + " | " + str(self.start) + " | " + str(
+                self.end) + " | " + self.signature)
 
     @classmethod
-    def from_file(cls, filepath):
+    def parse_functions_from_file(cls, filepath):
+        functions = []
+
         if not os.path.exists(filepath):
             cause = "No file exists '%s'", filepath
             raise FunctionParseError(cause=cause)
@@ -47,7 +50,6 @@ class FunctionParser:
                     end_line = node.end_lineno
                     code_block = "".join(code_lines[start_line: end_line])
                     return_annotation = ast.get_source_segment(code_lines[start_line: end_line]) if node.returns else ""
-
                     signature = {
                         "name": node.name,
                         "args": [arg.arg for arg in node.args.args],
@@ -58,15 +60,16 @@ class FunctionParser:
                     }
 
                     self.generic_visit(node)
-
-                    return cls.Function(file.name,
-                                        cls._parse_class_name(node, self.classes),
-                                        start_line, end_line,
-                                        cls._parse_function_signature(signature),
-                                        code_block)
+                    functions.append(cls.Function(file.name,
+                                                  cls._parse_class_name(node, self.classes),
+                                                  start_line, end_line,
+                                                  cls._parse_function_signature(signature),
+                                                  code_block))
 
             visitor = FunctionNodeVisitor()
             visitor.visit(tree)
+
+        return functions
 
     @classmethod
     def _parse_class_name(cls, func_node: ast.FunctionDef, classes):
@@ -88,14 +91,9 @@ class FunctionParser:
         sig_str = "def " + signature["name"] + "("
         for i in range(len(signatures)):
             sig_str += signatures[i]
-            if i == len(signatures)-1:
+            if i == len(signatures) - 1:
                 break
             sig_str += ','
         sig_str += ")"
 
         return sig_str
-
-
-
-
-
