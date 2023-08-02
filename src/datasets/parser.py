@@ -35,12 +35,13 @@ class FunctionParser:
         visitor = FunctionNodeVisitor()
         visitor.visit(tree)
 
-        functions = cls.parse_functions(visitor.functions, visitor.classes, file.name, source_code)
-
-        return functions
+        return cls._parse_functions_from_node(visitor.functions,
+                                              visitor.classes,
+                                              file.name,
+                                              source_code)
 
     @classmethod
-    def parse_functions(cls, fnodes, cnodes, filename, src):
+    def _parse_functions_from_node(cls, fnodes, cnodes, filename, src):
         functions = []
         for node in fnodes:
             start = node.lineno - 1
