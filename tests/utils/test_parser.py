@@ -19,4 +19,4 @@ class TestFunctionParser:
             for file in config['sample_file']['python']:
                 filepath = resource_path + "/" + file
                 result = FunctionParser.parse_functions_from_file(filepath)
-                assert result
+                assert len(result) > 0

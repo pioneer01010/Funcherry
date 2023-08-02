@@ -1,6 +1,13 @@
 {
+  "sample_repo": {
+    "python": [
+      "https://github.com/pioneer01010/Funcherry.git",
+      "https://github.com/deep-diver/PingPong.git"
+    ]
+  },
   "sample_file": {
     "python": ["simple.py", "inner_class.py"]
   },
+  "work_dir": "C:\\/Users\\/yc_pine.hong\\/Downloads\\/Funcherry",
   "debug_mode": true
 }

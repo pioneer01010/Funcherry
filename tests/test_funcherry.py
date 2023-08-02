@@ -1,6 +1,7 @@
+import torch
+
 from funcherry import Funcherry
 from transformers import AutoTokenizer, AutoModel
-import torch
 
 
 class TestFuncherry:
