@@ -1,7 +1,7 @@
 import logging
 
 from utils.git import GitClient
-from datasets.parser import FunctionParser
+from utils.parser import FunctionParser
 from common.log import GlobalLogger
 from pathlib import Path
 
