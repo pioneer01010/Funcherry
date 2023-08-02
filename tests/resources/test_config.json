@@ -1,0 +1,6 @@
+{
+  "sample_file": {
+    "python": ["simple.py", "inner_class.py"]
+  },
+  "debug_mode": true
+}
