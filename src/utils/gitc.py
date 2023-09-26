@@ -6,6 +6,7 @@ from git import Repo
 
 class GitClient:
     def __init__(self, repo):
+        self.repo = repo
         self.client = repo.git
 
     @classmethod

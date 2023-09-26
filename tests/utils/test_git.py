@@ -1,6 +1,6 @@
 import json
 
-from utils.git import GitClient
+from utils.gitc import GitClient
 
 
 class TestGitClient:
