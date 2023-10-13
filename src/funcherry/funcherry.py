@@ -1,16 +1,22 @@
 import json
+
+from funcherry.generator import Generator
 class Funcherry:
-    def __init__(self, anchor, positive, negatives):
-        self.anchor = anchor
-        self.positive = positive
-        self.negatives = negatives
+    def __init__(self, sample):
+        self.sample = sample
+        self.positive = Generator.gen_positive(sample)
+        self.negatives = Generator.gen_negatives(sample)
     
     def __repr__(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
     @classmethod
+    def from_str(cls, str):
+        return Funcherry(str)
+    
+    @classmethod
     def from_json(cls, json_dict):
-        return Funcherry(json_dict['anchor'], json_dict['positive'], json_dict['negatives'])
+        return Funcherry(json_dict['function'])
 
 class FCManager:
     def __init__(self):
