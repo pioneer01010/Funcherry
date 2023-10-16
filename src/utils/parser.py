@@ -46,7 +46,7 @@ class FunctionParser:
         for node in fnodes:
             start = node.lineno - 1
             end = node.end_lineno
-            code_block = "".join(src[start:end])
+            code_block = "".join(src[start:end]).lstrip()
             return_annotation = ast.get_source_segment(src[start:end]) if node.returns else ""
             signature = {
                 "name": node.name,
