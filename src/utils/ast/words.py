@@ -1,12 +1,10 @@
 import random
 import string
 
-
 variable_letterset = set(string.ascii_lowercase)
 
-
 def get_words():
-    with open('/usr/share/dict/words', 'r') as fd:
+    with open('resources/words', 'r') as fd:
         return [word.rstrip() for word in fd.readlines()]
 words = get_words()
 

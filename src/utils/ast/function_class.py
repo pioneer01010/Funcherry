@@ -19,10 +19,9 @@ def generate_function_def(max_depth=None):
 
     return ast.FunctionDef(name, args, body, decorator_list, returns)
 
-
 def _generate_arguments(max_depth=None):
     # normal arguments
-    num_args = random.randrange(4)
+    num_args = random.randrange(3)
     args = [_generate_arg() for _ in range(num_args)]
     defaults = [random.choice([generate_expression(max_depth=max_depth - 1)])
                 for _ in range(random.randrange(num_args + 1))]
