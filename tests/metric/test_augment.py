@@ -1,7 +1,7 @@
 import ast
 import astor
 
-from metric.complexity.augmentator import *
+from metric.complexity.transformer import *
 
 class TestAugment:
     def test_parse(self):
@@ -9,6 +9,5 @@ class TestAugment:
 
         module = ast.parse(sample1)
         func_node = module.body[0]
-        transformer = AugmentForLoopTransformer(2)
-        new_node = transformer.visit(func_node)
+        new_node = LoopNodeTransformer().visit(func_node)
         print(astor.to_source(new_node))

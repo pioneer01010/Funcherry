@@ -1,6 +1,6 @@
 import random
 
-from utils.ast_utils import *
+from utils.augment import *
 
 class LoopNodeTransformer(NodeTransformer):
     def visit_For(self, node):
@@ -13,6 +13,6 @@ class LoopNodeAugment:
     
     def transform(self, node):
         for i in range(self.cnt):
-            augment = random.choice([augment_for_node, augment_while_node])
+            augment = random.choice([augment_for_node, augment_while_node, augment_if_node])
             node = augment(node)
         return node
