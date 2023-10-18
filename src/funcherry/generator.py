@@ -1,4 +1,4 @@
-from metric.complexity.transformer import LoopNodeTransformer
+from metric.transformer import LoopNodeTransformer
 from utils.augment import *
 
 class Generator:

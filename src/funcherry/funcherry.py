@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from funcherry.generator import Generator
-from metric.complexity.evaluator import Cyclomatic
+from metric.complexity import Complexity
 from utils.gitc import GitClient
 from utils.parser import FunctionParser
 
@@ -62,7 +62,7 @@ class FCManager:
         for file in files:
             functions = FunctionParser.parse_functions_from_file(file)
             for function in functions:
-                cyclomatic = Cyclomatic().calculate(function.get('block'))
+                cyclomatic = Complexity().calculate_cyclomatic(function.get('block'))
                 function["cyclomatic"] = cyclomatic
                 if cyclomatic > 3:
                     func_dict.append(function)
