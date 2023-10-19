@@ -13,5 +13,10 @@ class Generator:
         negatives = []
         func_node = parse(anchor).body[0]
         loop_negative = LoopNodeTransformer().visit(func_node)
-        negatives.append(unparse(loop_negative))
+        try:
+            negatives.append(unparse(loop_negative))
+        except Exception as e:
+            negatives.append(e)
+            print(e)
+            
         return negatives

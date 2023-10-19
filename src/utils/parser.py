@@ -2,8 +2,8 @@ import ast
 import os
 
 from common.error import FunctionParseError
-import logging
-
+from metric.complexity import Complexity
+from metric.scalability import Scalability
 
 class FunctionNodeVisitor(ast.NodeVisitor):
     def __init__(self):
@@ -59,13 +59,22 @@ class FunctionParser:
             clazz = cls._find_class_name(node, cnodes)
             sigstr = cls._to_str_signature(signature)
 
+            cyclomatic = Complexity().calculate_cyclomatic(node)
+            call_depth = Complexity().calculate_cyclomatic(node)
+            halstead = Scalability().calculate_halstead(node)
+            codeloc = end - start + 1
+
             functions.append({
                 "file": filename,
                 "class": clazz,
                 "signature": sigstr,
                 "start": start,
                 "end": end,
-                "block": code_block
+                "block": code_block,
+                "cyclomatic": cyclomatic,
+                "call_depth": call_depth,
+                "halstead": halstead,
+                "codeloc": codeloc
             })
 
         return functions

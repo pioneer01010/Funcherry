@@ -2,7 +2,7 @@ from funcherry import Funcherry
 from funcherry.funcherry import FCManager
 
 repo = "https://github.com/pioneer01010/Funcherry.git"
-path = "C:\\/Users\\/yc_pine.hong\\/Documents\\/Funcherry"
+path = "C:\\/workspace\\/Funcherry"
 sample = "def foo():\n        for i in range(0, 5):\n            a = 3\n        return a"
 
 class TestFuncherry:

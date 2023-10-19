@@ -2,9 +2,10 @@ import json
 from pathlib import Path
 
 from funcherry.generator import Generator
-from metric.complexity import Complexity
 from utils.gitc import GitClient
 from utils.parser import FunctionParser
+from metric.complexity import Complexity
+from metric.scalability import Scalability
 
 class Funcherry:
     def __init__(self, sample):
@@ -62,10 +63,9 @@ class FCManager:
         for file in files:
             functions = FunctionParser.parse_functions_from_file(file)
             for function in functions:
-                cyclomatic = Complexity().calculate_cyclomatic(function.get('block'))
-                function["cyclomatic"] = cyclomatic
-                if cyclomatic > 3:
-                    func_dict.append(function)
+                func_dict.append(function)
+            with open("functions.json", "w") as file:
+                json.dump(func_dict, file)
 
         manager = cls()
         manager.funcherrys = [Funcherry.from_str(function['block']) for function in func_dict]
